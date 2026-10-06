@@ -1,0 +1,554 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  WORKER
+}
+
+enum OrderType {
+  WEB
+  WALK_IN
+}
+
+enum OrderStatus {
+  PENDING
+  DRAFT
+  APPROVED
+  PACKING
+  IN_TRANSIT
+  DELIVERED
+  INVOICED
+  COMPLETED
+  CANCELLED
+}
+
+enum StockRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AccountGroup {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum PaymentMode {
+  CASH
+  UPI
+  BANK_TRANSFER
+  CHEQUE
+}
+
+model User {
+  id             String          @id @default(cuid())
+  username       String          @unique
+  email          String?         @unique
+  password       String
+  name           String
+  role           Role            @default(WORKER)
+  active         Boolean         @default(true)
+  phone          String?
+  createdAt      DateTime        @default(now())
+  orders         Order[]
+  stockRequests  StockRequest[]
+  messagesSent   Message[]       @relation("MessageSender")
+  stockAdditions StockAddition[] @relation("StockAdditionWorker")
+  notifications  Notification[]  @relation("Notifications")
+}
+
+model Customer {
+  id          String          @id @default(cuid())
+  name        String
+  phone       String          @unique
+  email       String?
+  address     String?
+  city        String?
+  state       String          @default("Maharashtra")
+  stateCode   String          @default("27")
+  gstNumber   String?
+  creditLimit Float           @default(50000)
+  balance     Float           @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  orders         Order[]
+  payments       PaymentRecord[]
+  supportTickets SupportTicket[]
+
+  @@index([name])
+  @@index([phone])
+}
+
+model Product {
+  id            String  @id @default(cuid())
+  name          String
+  category      String
+  price         Float
+  costPrice     Float   @default(0)
+  webPrice      Float?
+  counterPrice  Float?   // Price for Cash Counter Non-GST sales
+  counterGstPrice Float? // Price for Cash Counter GST sales
+  stock         Float
+  unpackedStock Float   @default(0)
+  minStock      Float   @default(5)
+  maxStock      Float   @default(100)
+  bagWeight     Float?
+  minBulkBags   Int     @default(1)
+  maxBulkBags   Int     @default(100)
+  unit          String  @default("kg")
+  image         String?
+  active        Boolean @default(true)
+  availability  String  @default("BOTH") // "WEB" | "WALK_IN" | "BOTH"
+
+  hsnCode     String    @default("1006")
+  gstRate     Float     @default(5) // percentage (e.g. 5, 12, 18, 28)
+  batchNumber String?   @default("BATCH-001")
+  barcode     String?   @unique
+  expiryDate  DateTime?
+
+  parentId String?
+  parent   Product?  @relation("ProductVariants", fields: [parentId], references: [id])
+  variants Product[] @relation("ProductVariants")
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  orderItems     OrderItem[]
+  stockRequests  StockRequest[]
+  adjustments    StockAdjustment[]
+  stockAdditions StockAddition[]   @relation("StockAdditions")
+  arrivals       StockArrival[]    @relation("StockArrivals")
+
+  @@index([barcode])
+  @@index([active])
+  @@index([category])
+  @@index([availability])
+  @@index([active, availability])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber Int         @unique
+  type        OrderType   @default(WALK_IN)
+  status      OrderStatus @default(PENDING)
+
+  userId            String?
+  user              CustomerUser?    @relation(fields: [userId], references: [id])
+  deliveryAddressId String?
+  deliveryAddressRel CustomerAddress? @relation(fields: [deliveryAddressId], references: [id])
+
+  customerId        String?
+  customer          Customer? @relation(fields: [customerId], references: [id])
+  customerName      String?
+  customerPhone     String?
+  deliveryAddress   String?
+  customerStateCode String    @default("27")
+  placeOfSupply     String    @default("27-Maharashtra")
+  gstNumber         String?
+
+  totalTaxable Float   @default(0)
+  totalCgst    Float   @default(0)
+  totalSgst    Float   @default(0)
+  totalIgst    Float   @default(0)
+  total        Float   @default(0)
+  notes        String?
+
+  createdById String?
+  createdBy   User?     @relation(fields: [createdById], references: [id])
+  approvedAt  DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  items           OrderItem[]
+  invoice         Invoice?         @relation("OrderInvoice")
+  deliveryChallan DeliveryChallan? @relation("OrderChallan")
+  payments        PaymentRecord[]
+  paymentLogs     PaymentLog[]     @relation("OrderPaymentLogs")
+  supportTickets  SupportTicket[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  hsnCode     String  @default("1006")
+  batchNumber String?
+  quantity    Float
+  unitPrice   Float
+  discount    Float   @default(0)
+  gstRate     Float   @default(5)
+  cgstAmount  Float   @default(0)
+  sgstAmount  Float   @default(0)
+  igstAmount  Float   @default(0)
+  subtotal    Float
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  order         Order    @relation("OrderInvoice", fields: [orderId], references: [id], onDelete: Cascade)
+  invoiceNumber String   @unique
+  invoiceDate   DateTime @default(now())
+
+  placeOfSupply String  @default("27-Maharashtra")
+  isInterState  Boolean @default(false)
+
+  totalTaxable   Float @default(0)
+  totalCgst      Float @default(0)
+  totalSgst      Float @default(0)
+  totalIgst      Float @default(0)
+  discountAmount Float @default(0)
+  roundOff       Float @default(0)
+  grandTotal     Float @default(0)
+
+  paymentStatus String    @default("UNPAID") // UNPAID, PARTIAL, PAID
+  paidAmount    Float     @default(0)
+  gstr1Exported Boolean   @default(false)
+  smsSent       Boolean   @default(false)
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  deliveryChallan DeliveryChallan? @relation("InvoiceChallan")
+  payments        PaymentRecord[]
+  paymentLogs     PaymentLog[]     @relation("InvoicePaymentLogs")
+
+  @@index([smsSent])
+  @@index([paymentStatus])
+  @@index([invoiceDate])
+}
+
+model DeliveryChallan {
+  id            String   @id @default(cuid())
+  challanNumber String   @unique
+  orderId       String   @unique
+  order         Order    @relation("OrderChallan", fields: [orderId], references: [id], onDelete: Cascade)
+  invoiceId     String?  @unique
+  invoice       Invoice? @relation("InvoiceChallan", fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  transporterName String
+  lrNumber        String
+  vehicleNumber   String
+  dispatchDate    DateTime @default(now())
+  destination     String
+  distanceKm      Float    @default(10)
+  eWayBillNo      String?
+  status          String   @default("IN_TRANSIT") // IN_TRANSIT, DELIVERED
+  notes           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([challanNumber])
+  @@index([lrNumber])
+}
+
+model LedgerAccount {
+  id        String           @id @default(cuid())
+  code      String           @unique
+  name      String
+  group     AccountGroup
+  balance   Float            @default(0)
+  active    Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  postings  JournalPosting[]
+
+  @@index([group])
+}
+
+model JournalEntry {
+  id            String   @id @default(cuid())
+  entryNumber   String   @unique
+  entryDate     DateTime @default(now())
+  narration     String
+  referenceType String? // INVOICE, PAYMENT, RECEIPT, ADJUSTMENT
+  referenceId   String?
+  createdAt     DateTime @default(now())
+
+  postings JournalPosting[]
+
+  @@index([entryDate])
+  @@index([referenceType, referenceId])
+}
+
+model JournalPosting {
+  id        String        @id @default(cuid())
+  entryId   String
+  entry     JournalEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  accountId String
+  account   LedgerAccount @relation(fields: [accountId], references: [id])
+  debit     Float         @default(0)
+  credit    Float         @default(0)
+
+  @@index([entryId])
+  @@index([accountId])
+}
+
+model PaymentRecord {
+  id             String      @id @default(cuid())
+  paymentNumber  String      @unique
+  invoiceId      String?
+  invoice        Invoice?    @relation(fields: [invoiceId], references: [id])
+  orderId        String?
+  order          Order?      @relation(fields: [orderId], references: [id])
+  customerId     String?
+  customer       Customer?   @relation(fields: [customerId], references: [id])
+  amount         Float
+  paymentMode    PaymentMode @default(CASH)
+  transactionRef String?
+  paymentDate    DateTime    @default(now())
+  notes          String?
+  createdAt      DateTime    @default(now())
+
+  @@index([paymentDate])
+}
+
+model PaymentLog {
+  id              String      @id @default(cuid())
+  orderId         String?
+  order           Order?      @relation("OrderPaymentLogs", fields: [orderId], references: [id])
+  invoiceId       String?
+  invoice         Invoice?    @relation("InvoicePaymentLogs", fields: [invoiceId], references: [id])
+  source          String      @default("IDFC")
+  paymentMode     PaymentMode @default(UPI)
+  amount          Float
+  status          String      @default("PENDING")
+  transactionRef  String?
+  requestPayload  String?
+  responsePayload String?
+  createdAt       DateTime    @default(now())
+
+  @@index([orderId])
+  @@index([invoiceId])
+  @@index([transactionRef])
+  @@index([createdAt])
+}
+
+model CompanySettings {
+  id                 String   @id @default("default")
+  companyName        String   @default("Radhe Wholesale & Retail Traders")
+  gstin              String   @default("27AAAAA0000A1Z5")
+  address            String   @default("123 Commercial Market Yard, Main Gate")
+  city               String   @default("Mumbai")
+  state              String   @default("Maharashtra")
+  stateCode          String   @default("27")
+  phone              String   @default("+91 9876543210")
+  email              String   @default("billing@radhetraders.com")
+  pan                String   @default("AAAAA0000A")
+  bankName           String   @default("State Bank of India")
+  accountNumber      String   @default("38472910482")
+  ifscCode           String   @default("SBIN0001234")
+  upiId              String   @default("radhetraders@sbi")
+  termsAndConditions String   @default("1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged if payment is delayed beyond due date.\n3. Subject to local jurisdiction only.")
+  updatedAt          DateTime @updatedAt
+}
+
+model StockRequest {
+  id          String             @id @default(cuid())
+  productId   String
+  product     Product            @relation(fields: [productId], references: [id])
+  workerId    String
+  worker      User               @relation(fields: [workerId], references: [id])
+  bagCount    Int
+  bagWeight   Float
+  totalWeight Float
+  status      StockRequestStatus @default(PENDING)
+  note        String?
+  adminNote   String?
+  createdAt   DateTime           @default(now())
+  reviewedAt  DateTime?
+
+  @@index([status])
+  @@index([productId])
+}
+
+model StockAdjustment {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Float
+  bagCount    Int?
+  bagWeight   Float?
+  reason      String
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model StockAddition {
+  id           String    @id @default(cuid())
+  productId    String
+  product      Product   @relation("StockAdditions", fields: [productId], references: [id])
+  workerId     String
+  worker       User      @relation("StockAdditionWorker", fields: [workerId], references: [id])
+  bagCount     Int
+  bagWeight    Float
+  totalWeight  Float
+  status       String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  note         String?
+  adminNote    String?
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([status])
+  @@index([productId])
+  @@index([workerId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("Notifications", fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String // "LOW_STOCK", "ORDER_ALERT", "STOCK_ADDITION", "MESSAGE"
+  read      Boolean  @default(false)
+  relatedId String? // links to order, product, etc.
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  senderId  String
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model StockArrival {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation("StockArrivals", fields: [productId], references: [id], onDelete: Cascade)
+  supplierName  String
+  totalWeight   Float
+  costPerUnit   Float
+  usedWeight    Float    @default(0)
+  vehicleNumber String?
+  note          String?
+  createdById   String
+  createdAt     DateTime @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model SupportTicket {
+  id              String             @id @default(cuid())
+  ticketNumber    String             @unique
+  customerPhone   String
+  customerName    String?
+  issueType       String             // "DAMAGED_PRODUCT", "WRONG_PRODUCT", "MISSING_PRODUCT", "DELIVERY_DELAY", "BILLING_ISSUE", "OTHER"
+  priority        String             @default("HIGH") // "CRITICAL", "HIGH", "MEDIUM", "LOW"
+  status          String             @default("OPEN") // "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"
+  description     String
+  resolutionNotes String?
+  customerId      String?
+  customer        Customer?          @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderId         String?
+  order           Order?             @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  attachments     TicketAttachment[]
+
+  @@index([customerPhone])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+model TicketAttachment {
+  id        String        @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  fileUrl   String
+  fileName  String
+  mimeType  String
+  fileSize  Int           @default(0)
+  source    String        @default("WHATSAPP") // "WHATSAPP", "UPLOAD"
+  createdAt DateTime      @default(now())
+
+  @@index([ticketId])
+}
+
+model CustomerUser {
+  id            String            @id @default(cuid())
+  name          String            @default("")
+  phone         String            @unique
+  phoneVerified Boolean           @default(false)
+  email         String?
+  status        String            @default("ACTIVE") // ACTIVE, SUSPENDED
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  addresses     CustomerAddress[]
+  orders        Order[]
+  otpRequests   OtpVerification[]
+
+  @@index([phone])
+  @@index([status])
+}
+
+model CustomerAddress {
+  id        String       @id @default(cuid())
+  userId    String
+  user      CustomerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String
+  address   String
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  orders    Order[]
+
+  @@index([userId])
+}
+
+model OtpVerification {
+  id          String        @id @default(cuid())
+  phone       String
+  otpHash     String
+  attempts    Int           @default(0)
+  maxAttempts Int           @default(5)
+  expiresAt   DateTime
+  verified    Boolean       @default(false)
+  purpose     String        @default("LOGIN") // LOGIN, PHONE_CHANGE
+  ipAddress   String?
+  userId      String?
+  user        CustomerUser? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+
+  @@index([phone])
+  @@index([expiresAt])
+}
+
+
