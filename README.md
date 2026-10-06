@@ -1,6 +1,6 @@
-# Rajyalakshmi Radhe — Grocery Portal
+# xyz — Grocery Portal
 
-A full-stack web application for **Rajyalakshmi Traders** (Vijayawada): public customer website, WhatsApp/SMS order alerts, and a role-based admin/worker portal — all backed by one centralized database.
+A full-stack web application for **xyz** (abc): public customer website, WhatsApp/SMS order alerts, and a role-based admin/worker portal — all backed by one centralized database.
 
 ## Features
 
@@ -28,11 +28,6 @@ npm run db:setup    # create SQLite DB + seed products & users
 npm run dev         # http://localhost:3000
 ```
 
-### Demo logins
-| Username | Password | Role |
-|----------|----------|------|
-| `admin` | `admin123` | Admin (owner) |
-| `worker` | `worker123` | Worker |
 
 ## Environment Variables
 
