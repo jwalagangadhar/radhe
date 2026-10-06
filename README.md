@@ -37,7 +37,7 @@ Copy `.env.example` to `.env`:
 |----------|-------------|
 | `DATABASE_URL` | SQLite (`file:./dev.db`) or PostgreSQL connection string |
 | `JWT_SECRET` | Secret for session tokens |
-| `ADMIN_PHONE` | Owner phone for alerts (E.164, e.g. `+919642423395`) |
+| `ADMIN_PHONE` | Owner phone for alerts (E.164, e.g. `+91xxxxxxxxxx`) |
 | `TWILIO_*` | Twilio credentials for WhatsApp/SMS |
 
 ## API Endpoints (Phase 2 ready)
