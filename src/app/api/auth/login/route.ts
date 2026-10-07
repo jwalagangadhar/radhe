@@ -17,7 +17,12 @@ const loginSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     await ensureDefaultData();
-    const body = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid request payload. Please send valid JSON." }, { status: 400 });
+    }
     const parsed = loginSchema.parse(body);
 
     const clientIp =
@@ -33,7 +38,7 @@ export async function POST(req: NextRequest) {
       ""
     ).trim();
     if (!rawIdentifier) {
-      return NextResponse.json({ error: "Invalid email/username or password." }, { status: 401 });
+      return NextResponse.json({ error: "Please enter your username, email, or phone number." }, { status: 400 });
     }
 
     const identifierLower = rawIdentifier.toLowerCase();
@@ -53,20 +58,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Look up by username (case-insensitive or exact) or email
+    // Prepare phone number variants if digits entered
+    const cleanPhone = rawIdentifier.replace(/[\s-]/g, "");
+    const phoneVariants = [
+      rawIdentifier,
+      cleanPhone,
+      cleanPhone.startsWith("+91") ? cleanPhone.slice(3) : `+91${cleanPhone}`,
+    ];
+
+    // Look up by username (case-insensitive or exact), email, or phone
     const user = await prisma.user.findFirst({
       where: {
         active: true,
         OR: [
           { username: rawIdentifier },
           { username: identifierLower },
-          { email: identifierLower } as any,
+          { email: identifierLower },
+          { phone: { in: phoneVariants } },
         ],
       },
     });
 
     if (!user || !(await bcrypt.compare(parsed.password, user.password))) {
-      return NextResponse.json({ error: "Invalid email/username or password." }, { status: 401 });
+      return NextResponse.json({ error: "Invalid username/email or password." }, { status: 401 });
     }
 
     // Reset rate limit counter upon successful credentials verification
@@ -78,7 +92,7 @@ export async function POST(req: NextRequest) {
       id: user.id,
       username: user.username,
       email: userWithEmail.email ?? null,
-       name: user.name,
+      name: user.name,
       role: user.role,
     };
 
@@ -94,10 +108,11 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (err) {
+    console.error("LOGIN_ERROR_DETAILS:", err);
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid email/username or password." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid email/username or password format." }, { status: 400 });
     }
-    return NextResponse.json({ error: "Login failed" }, { status: 500 });
+    return NextResponse.json({ error: "Login failed. Please check server connection." }, { status: 500 });
   }
 }
 

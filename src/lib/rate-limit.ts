@@ -1,4 +1,9 @@
-const rateLimitMap = new Map();
+interface RateLimitRecord {
+  count: number;
+  resetAt: number;
+}
+
+const rateLimitMap = new Map<string, RateLimitRecord>();
 
 // Clean up stale entries every 5 minutes
 if (typeof setInterval !== "undefined") {
@@ -13,12 +18,12 @@ if (typeof setInterval !== "undefined") {
 }
 
 /**
- * Checks and records rate limits in memory (Standard JavaScript).
- * @param {string} key unique identifier (e.g. ip:username)
- * @param {number} limit maximum allowed attempts in window
- * @param {number} windowMs time window in milliseconds (e.g. 60,000 for 1 minute)
+ * Checks and records rate limits in memory.
+ * @param key unique identifier (e.g. ip:username)
+ * @param limit maximum allowed attempts in window
+ * @param windowMs time window in milliseconds (default 60,000 for 1 minute)
  */
-export function checkRateLimit(key, limit = 5, windowMs = 60 * 1000) {
+export function checkRateLimit(key: string, limit = 5, windowMs = 60 * 1000) {
   const now = Date.now();
   const record = rateLimitMap.get(key);
 
@@ -42,8 +47,8 @@ export function checkRateLimit(key, limit = 5, windowMs = 60 * 1000) {
 
 /**
  * Resets rate limit for a key upon successful authentication.
- * @param {string} key
+ * @param key
  */
-export function resetRateLimit(key) {
+export function resetRateLimit(key: string) {
   rateLimitMap.delete(key);
 }

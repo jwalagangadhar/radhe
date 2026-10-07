@@ -7,6 +7,16 @@ async function runComprehensiveVerification() {
   console.log("==========================================================================");
 
   const BASE_URL = "http://localhost:3000";
+
+  // Check if server is running
+  try {
+    await fetch(`${BASE_URL}/api/products`);
+  } catch {
+    console.warn("\n⚠️  DEVELOPMENT SERVER NOT RUNNING AT " + BASE_URL);
+    console.log("👉 Please start the server with 'npm run dev' before executing end-to-end HTTP tests.\n");
+    return;
+  }
+
   let totalTests = 0;
   let passedTests = 0;
   let failedTests = 0;

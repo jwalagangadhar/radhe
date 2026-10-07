@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { jsonError, requireAuth } from "@/lib/api";
+import twilio from "twilio";
 
 // Generate invoice number
 function generateInvoiceNumber(orderId: string): string {
@@ -97,7 +98,6 @@ export async function POST(req: NextRequest) {
     // Send SMS if phone number exists and Twilio is configured
     if (order.customerPhone && process.env.TWILIO_ACCOUNT_SID) {
       try {
-        const twilio = require("twilio");
         const client = twilio(
           process.env.TWILIO_ACCOUNT_SID,
           process.env.TWILIO_AUTH_TOKEN

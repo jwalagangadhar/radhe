@@ -44,10 +44,6 @@ export function GstBillingModule({ onInvoiceCreated, onOpenPrintModal }: GstBill
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
   const fetchOrders = async () => {
     try {
       const res = await fetch("/api/erp/orders");
@@ -59,6 +55,10 @@ export function GstBillingModule({ onInvoiceCreated, onOpenPrintModal }: GstBill
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   const handleGenerateInvoice = async (order: Order) => {
     try {

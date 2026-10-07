@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
-  <rect width="200" height="200" rx="20" fill="#F5E1D6"/>
-  <path d="M50 130C50 110 70 90 90 90C110 90 130 110 150 130" stroke="#825A3C" stroke-width="12" stroke-linecap="round"/>
-  <circle cx="70" cy="80" r="18" fill="#FFF5F0" stroke="#825A3C" stroke-width="10"/>
-  <circle cx="130" cy="80" r="18" fill="#FFF5F0" stroke="#825A3C" stroke-width="10"/>
-  <text x="100" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#825A3C">FUR</text>
-</svg>

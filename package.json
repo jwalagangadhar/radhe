@@ -8,9 +8,15 @@
     "build": "prisma generate && prisma db push --accept-data-loss && next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx tests/comprehensive-portal-check.ts",
+    "test:auth": "tsx tests/test-auth-flows.ts",
+    "test:mobile": "tsx tests/test-mobile-api.ts",
+    "test:billing": "tsx tests/test-admin-billing.ts",
+    "test:pdf": "tsx tests/test-pdf.ts",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma db push && tsx prisma/seed.ts",
+    "db:check": "tsx scripts/check-db.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

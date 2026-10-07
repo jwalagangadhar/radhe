@@ -98,7 +98,9 @@ export async function proxy(request: NextRequest) {
   // 4. /portal/admin and all admin subroutes
   if (pathname.startsWith("/portal/admin")) {
     if (!session) {
-      return NextResponse.redirect(new URL("/portal/login", request.url));
+      const loginUrl = new URL("/portal/login", request.url);
+      loginUrl.searchParams.set("returnUrl", pathname);
+      return NextResponse.redirect(loginUrl);
     }
     if (session.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/portal/access-denied", request.url));
@@ -109,7 +111,9 @@ export async function proxy(request: NextRequest) {
   // 5. /portal/worker and all worker subroutes
   if (pathname.startsWith("/portal/worker")) {
     if (!session) {
-      return NextResponse.redirect(new URL("/portal/login", request.url));
+      const loginUrl = new URL("/portal/login", request.url);
+      loginUrl.searchParams.set("returnUrl", pathname);
+      return NextResponse.redirect(loginUrl);
     }
     // Worker portal is allowed for WORKER and ADMIN
     return NextResponse.next();
@@ -118,12 +122,24 @@ export async function proxy(request: NextRequest) {
   // 6. Legacy and direct /admin routes
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     if (!session) {
-      return NextResponse.redirect(new URL("/portal/login", request.url));
+      const loginUrl = new URL("/portal/login", request.url);
+      loginUrl.searchParams.set("returnUrl", "/portal/admin");
+      return NextResponse.redirect(loginUrl);
     }
     if (session.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/portal/access-denied", request.url));
     }
     return NextResponse.redirect(new URL("/portal/admin", request.url));
+  }
+
+  // 7. Legacy and direct /worker routes
+  if (pathname === "/worker" || pathname.startsWith("/worker/")) {
+    if (!session) {
+      const loginUrl = new URL("/portal/login", request.url);
+      loginUrl.searchParams.set("returnUrl", "/portal/worker");
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.redirect(new URL("/portal/worker", request.url));
   }
 
   return NextResponse.next();
@@ -132,6 +148,14 @@ export async function proxy(request: NextRequest) {
 export default proxy;
 
 export const config = {
-  matcher: ["/api/:path*", "/portal", "/portal/:path*", "/admin", "/admin/:path*"],
+  matcher: [
+    "/api/:path*",
+    "/portal",
+    "/portal/:path*",
+    "/admin",
+    "/admin/:path*",
+    "/worker",
+    "/worker/:path*",
+  ],
 };
 

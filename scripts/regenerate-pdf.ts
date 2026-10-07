@@ -1,10 +1,10 @@
-import { enqueueBackgroundTasks } from "./src/lib/background";
-import { prisma } from "./src/lib/db";
+import { enqueueBackgroundTasks } from "@/lib/background";
+import { prisma } from "@/lib/db";
 
 async function main() {
   const invoice = await prisma.invoice.findFirst({
     where: { invoiceNumber: "INV-2026-0004" },
-    include: { order: true, deliveryChallan: true }
+    include: { order: true, deliveryChallan: true },
   });
 
   if (!invoice) {

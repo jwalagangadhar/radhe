@@ -33,10 +33,6 @@ export function LedgerViewer() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchLedger();
-  }, []);
-
   const fetchLedger = async () => {
     try {
       const res = await fetch("/api/erp/ledger");
@@ -50,6 +46,10 @@ export function LedgerViewer() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchLedger();
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

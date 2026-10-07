@@ -1,5 +1,5 @@
-import { prisma, ensureDefaultData } from "../src/lib/db";
-import { createToken, verifyToken } from "../src/lib/auth";
+import { prisma, ensureDefaultData } from "@/lib/db";
+import { createToken, verifyToken } from "@/lib/auth";
 
 async function runTests() {
   console.log("==================================================");
@@ -9,6 +9,14 @@ async function runTests() {
   await ensureDefaultData();
 
   const baseUrl = "http://localhost:3000";
+
+  try {
+    await fetch(`${baseUrl}/api/products`);
+  } catch {
+    console.warn("⚠️  DEVELOPMENT SERVER NOT RUNNING AT " + baseUrl);
+    console.log("👉 Please start the server with 'npm run dev' before executing mobile API tests.\n");
+    return;
+  }
 
   // 1. Test Admin Login
   console.log("\n[TEST 1] Login as Admin...");

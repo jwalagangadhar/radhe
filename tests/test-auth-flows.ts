@@ -1,13 +1,24 @@
+export {};
+
 async function testSuite() {
   console.log("==================================================");
   console.log("RUNNING ROLE-BASED LOGIN & ROUTE PROTECTION TESTS");
   console.log("==================================================\n");
 
   const baseUrl = "http://localhost:3000";
+
+  try {
+    await fetch(`${baseUrl}/api/products`);
+  } catch {
+    console.warn("⚠️  DEVELOPMENT SERVER NOT RUNNING AT " + baseUrl);
+    console.log("👉 Please start the server with 'npm run dev' before executing authentication flow tests.\n");
+    return;
+  }
+
   let passed = 0;
   let failed = 0;
 
-  function assert(condition: boolean, desc: string) {
+  function assert(condition: any, desc: string) {
     if (condition) {
       console.log(`✅ PASS: ${desc}`);
       passed++;
@@ -35,7 +46,7 @@ async function testSuite() {
     );
   }
 
-  // TEST 2: Login using ADMIN credentials (Email or Username)
+  // TEST 2: Login using ADMIN credentials (Email, Username, or Phone)
   let adminCookie = "";
   {
     // Test with admin email
@@ -61,6 +72,18 @@ async function testSuite() {
     assert(
       resUser.status === 200 && dataUser.user?.role === "ADMIN",
       `TEST 2b: Login as ADMIN (Username) -> Success, role=ADMIN`
+    );
+
+    // Also verify phone login works
+    const resPhone = await fetch(`${baseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier: "+919876543210", password: "admin123" }),
+    });
+    const dataPhone = await resPhone.json();
+    assert(
+      resPhone.status === 200 && dataPhone.user?.role === "ADMIN",
+      `TEST 2c: Login as ADMIN (Phone) -> Success, role=ADMIN`
     );
   }
 
@@ -139,7 +162,7 @@ async function testSuite() {
     );
   }
 
-  // TEST 8: WORKER opens /portal/worker -> Expected: Allowed (200 OK or redirects to /portal/worker/queue)
+  // TEST 8: WORKER opens /portal/worker -> Expected: Allowed (200 OK)
   {
     const res = await fetch(`${baseUrl}/portal/worker`, {
       headers: { Cookie: workerCookie },
@@ -179,7 +202,6 @@ async function testSuite() {
 
   // TEST 11: After logout, manually open /portal/admin -> Expected: /portal/login
   {
-    // Send expired cookie
     const res = await fetch(`${baseUrl}/portal/admin`, {
       headers: { Cookie: "radhe_session=" },
       redirect: "manual",

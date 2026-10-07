@@ -26,12 +26,6 @@ export function LowStockAlertsPanel() {
   const [alerts, setAlerts] = useState<StockAlert | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAlerts();
-    const interval = setInterval(fetchAlerts, 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, []);
-
   async function fetchAlerts() {
     try {
       const res = await fetch("/api/dashboard/low-stock-alerts", {
@@ -47,6 +41,12 @@ export function LowStockAlertsPanel() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) return <p className="text-zinc-500">Loading alerts...</p>;
   if (!alerts || alerts.summary.totalLow === 0) {

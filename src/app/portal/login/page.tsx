@@ -79,7 +79,7 @@ function PortalLoginContent() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
+        body: JSON.stringify({ identifier: identifier.trim(), password }),
       });
 
       const data = await res.json();
@@ -88,9 +88,15 @@ function PortalLoginContent() {
         return;
       }
 
-      const targetPath = data.user.role === "ADMIN" ? "/portal/admin" : "/portal/worker";
-      router.push(targetPath);
-      router.refresh();
+      const defaultPath = data.user.role === "ADMIN" ? "/portal/admin" : "/portal/worker";
+      const returnUrl = searchParams.get("returnUrl") || searchParams.get("callbackUrl") || searchParams.get("redirect");
+      let targetPath = defaultPath;
+      if (returnUrl && returnUrl.startsWith("/portal/")) {
+        if (data.user.role === "ADMIN" || returnUrl.startsWith("/portal/worker")) {
+          targetPath = returnUrl;
+        }
+      }
+      window.location.href = targetPath;
     } catch (err) {
       setError("Unable to connect to server. Please try again.");
       console.error("Login failure:", err);
@@ -214,14 +220,17 @@ function PortalLoginContent() {
                 htmlFor="identifier-input"
                 className="block text-xs font-bold uppercase tracking-wider text-zinc-700"
               >
-                Email or Username
+                Email, Username or Phone
               </label>
               <div className="mt-1.5 relative">
                 <input
                   id="identifier-input"
                   value={identifier}
-                  onChange={(event) => setIdentifier(event.target.value)}
-                  placeholder="admin or worker"
+                  onChange={(event) => {
+                    setIdentifier(event.target.value);
+                    if (error) setError("");
+                  }}
+                  placeholder="admin, worker, or phone"
                   className="w-full min-h-[44px] rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 sm:py-3 text-base sm:text-sm text-zinc-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20"
                   type="text"
                   autoComplete="username"
@@ -241,7 +250,10 @@ function PortalLoginContent() {
                 <input
                   id="password-input"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    if (error) setError("");
+                  }}
                   placeholder="••••••••••••"
                   className="w-full min-h-[44px] rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 sm:py-3 pr-11 text-base sm:text-sm text-zinc-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20"
                   type={showPassword ? "text" : "password"}

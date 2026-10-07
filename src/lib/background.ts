@@ -1,4 +1,4 @@
-import { generateDeliveryChallanPdf, generateInvoicePdf, CompanyInfo, InvoicePdfData, ChallanPdfData } from "@/lib/pdf";
+import { generateDeliveryChallanPdf, generateInvoicePdf, InvoicePdfData } from "@/lib/pdf";
 import { prisma } from "@/lib/db";
 import { sendCustomerInvoiceSms } from "@/lib/notifications";
 import { mkdir, writeFile } from "fs/promises";

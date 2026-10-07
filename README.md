@@ -1,72 +1,108 @@
-# xyz — Grocery Portal
+# Rajyalakshmi Radhe — Commercial ERP & Grocery Platform
 
-A full-stack web application for **xyz** (abc): public customer website, WhatsApp/SMS order alerts, and a role-based admin/worker portal — all backed by one centralized database.
+A comprehensive multi-tier trading and wholesale/retail platform for **Rajyalakshmi Traders** (Vijayawada):
+- **Public Customer Storefront (`/`)**: Product catalog, category browsing, cart, checkout, OTP customer login, and real-time order tracking.
+- **Enterprise Staff Portal (`/portal/login`)**: Role-Based Access Control (`ADMIN` vs `WORKER`), Wholesale GST Invoicing, Shop Counter Non-GST Billing, Delivery Challans, Inventory & Stock arrivals, and Double-Entry General Ledger.
+- **Cross-Platform Mobile App (`mobile/`)**: Native Expo Router v4 Android/iOS application communicating via Bearer token REST API.
+- **Automated Messaging & Notifications**: Instant Twilio SMS and WhatsApp notifications with background PDF generation.
 
-## Features
+---
 
-### Customer Website (`/`)
-- Homepage with family-business branding
-- Searchable product catalog by category
-- Shopping cart and checkout (name, phone, address, optional GST)
-- Real-time prices and stock from the database
+## 1. Quick Start
 
-### Notifications
-- Instant WhatsApp or SMS alert to the shop owner when a web order is placed
-- Powered by Twilio (logs to console when not configured)
+### Web Application & API
+```bash
+# Install dependencies
+npm install
 
-### Staff Portal (`/portal/login`)
-| Role | Access |
-|------|--------|
-| **Admin** | Dashboard, inventory/pricing, order approvals |
-| **Worker** | Packing queue, walk-in quick orders (save as draft) |
+# Initialize database & seed initial catalog and accounts
+npm run db:setup
 
-## Quick Start
+# Start development server
+npm run dev
+# Server available at http://localhost:3000
+```
+
+### Mobile Application (Android / iOS)
+```bash
+# Start Android dev client
+npm run android
+
+# Or launch Expo bundler interactive menu
+npm --prefix mobile run start
+```
+
+---
+
+## 2. Staff Demo Credentials
+
+The Staff Portal (`/portal/login`) provides **1-click Quick Login chips** for instant access:
+
+| Role | Username | Password | Email | Description |
+|:---|:---|:---|:---|:---|
+| **Admin** | `admin` | `admin123` | `admin@example.com` | Full ERP, Invoicing, Ledger, Analytics & Pricing |
+| **Worker** | `worker` | `worker123` | `worker@example.com` | Packing Queue, Stock Requests, Walk-in Drafts |
+
+*Note: Staff can log in using their **Username**, **Email**, or **Phone Number** (`+919876543210`).*
+
+---
+
+## 3. Automated Test Suites & Quality Commands
+
+All test suites and quality gates can be run from the root directory:
 
 ```bash
-npm install
-npm run db:setup    # create SQLite DB + seed products & users
-npm run dev         # http://localhost:3000
+# Run all role-based auth & route guard integration tests
+npm run test:auth
+
+# Run complete 20-point mobile API & defensive security test suite
+npm run test:mobile
+
+# Run Admin cash counter & wholesale billing verification
+npm run test:billing
+
+# Validate server-side Tax Invoice PDF generation
+npm run test:pdf
+
+# Inspect current orders in the database
+npm run db:check
+
+# Run full TypeScript compiler verification (0 errors)
+npx tsc --noEmit
+
+# Run ESLint check
+npm run lint
+
+# Production Next.js build
+npm run build
 ```
 
+---
 
-## Environment Variables
+## 4. Technical Documentation Suite
 
-Copy `.env.example` to `.env`:
+Comprehensive architecture, database, API, and deployment documentation is available in [`docs/`](./docs):
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | SQLite (`file:./dev.db`) or PostgreSQL connection string |
-| `JWT_SECRET` | Secret for session tokens |
-| `ADMIN_PHONE` | Owner phone for alerts (E.164, e.g. `+91xxxxxxxxxx`) |
-| `TWILIO_*` | Twilio credentials for WhatsApp/SMS |
+- [`docs/CURRENT_ARCHITECTURE.md`](./docs/CURRENT_ARCHITECTURE.md) &mdash; Detailed audit of existing system architecture.
+- [`docs/TARGET_ARCHITECTURE.md`](./docs/TARGET_ARCHITECTURE.md) &mdash; Architectural blueprint and migration roadmap.
+- [`docs/API.md`](./docs/API.md) &mdash; Complete REST API endpoint reference and payload specifications.
+- [`docs/DATABASE.md`](./docs/DATABASE.md) &mdash; Prisma models, relationships, and seeding guide.
+- [`docs/AUTHENTICATION.md`](./docs/AUTHENTICATION.md) &mdash; Dual-track auth flows, RBAC, tokens, cookies, and rate-limiting.
+- [`docs/MOBILE.md`](./docs/MOBILE.md) &mdash; Mobile architecture, Expo Router v4 setup, API client, and EAS builds.
+- [`docs/ENVIRONMENT.md`](./docs/ENVIRONMENT.md) &mdash; Environment variables reference and default settings.
+- [`docs/SECURITY_AUDIT.md`](./docs/SECURITY_AUDIT.md) &mdash; Comprehensive defensive security audit and headers.
+- [`docs/SCRATCH_AUDIT.md`](./docs/SCRATCH_AUDIT.md) &mdash; Migration audit and permanent directory standards.
+- [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) &mdash; Production deployment runbook (VPS, Docker, Netlify, PostgreSQL).
+- [`docs/REFACTOR_REPORT.md`](./docs/REFACTOR_REPORT.md) &mdash; Complete before/after refactor summary and verification log.
 
-## API Endpoints (Phase 2 ready)
+---
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/products` | Public | List products |
-| POST | `/api/products` | Admin | Add product |
-| PATCH | `/api/products/:id` | Admin | Update price/stock |
-| POST | `/api/orders` | Public/Staff | Place web or walk-in order |
-| GET | `/api/orders` | Staff | List orders |
-| PATCH | `/api/orders/:id` | Staff | Update order status |
-| GET | `/api/dashboard` | Admin | Sales stats |
-| POST | `/api/auth/login` | Public | Staff login |
+## 5. Technology Stack
 
-## Production
-
-For production, switch `DATABASE_URL` to PostgreSQL:
-
-```
-DATABASE_URL="postgresql://user:pass@host:5432/radhe"
-```
-
-Then run `npm run db:setup` against the production database.
-
-## Tech Stack
-
-- **Next.js 16** (App Router, REST API)
-- **Prisma** + SQLite/PostgreSQL
-- **Tailwind CSS 4**
-- **Twilio** (WhatsApp/SMS)
-- **JWT** session auth
+- **Web Framework:** Next.js 16.2.9 (App Router, Edge Proxy `src/proxy.ts`, REST API)
+- **UI Engine:** React 19.2.4 + Tailwind CSS 4
+- **Mobile Client:** Expo SDK 52 + Expo Router v4 + React Native 0.76.7
+- **Database:** Prisma Client v6 (SQLite in Dev, PostgreSQL in Production)
+- **Security:** `jose` (JWT), `bcryptjs`, Edge route protection, HTTP security headers
+- **Documents:** `pdf-lib` + `pdfkit` (GST Invoices, Transport Challans)
+- **Notifications:** Twilio (WhatsApp & SMS alerts)

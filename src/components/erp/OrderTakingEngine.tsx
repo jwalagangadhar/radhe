@@ -71,11 +71,6 @@ export function OrderTakingEngine({ onOrderCreated, onOpenPrintModal }: OrderTak
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCustomers();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       const res = await fetch("/api/products?active=true&orderType=WALK_IN_GST");
@@ -95,6 +90,11 @@ export function OrderTakingEngine({ onOrderCreated, onOpenPrintModal }: OrderTak
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCustomers();
+  }, []);
 
   // Phone auto-fill — looks up customer when 10 digits entered
   useEffect(() => {

@@ -25,6 +25,10 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
   },
+  {
+    key: "Content-Security-Policy",
+    value: "upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: http: ws: wss:; frame-ancestors 'self';",
+  },
 ];
 
 const nextConfig: NextConfig = {
@@ -51,7 +55,6 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-
     return [
       {
         source: "/loging",
@@ -60,6 +63,46 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/portal/loging",
+        destination: "/portal/login",
+        permanent: false,
+      },
+      {
+        source: "/potal",
+        destination: "/portal",
+        permanent: false,
+      },
+      {
+        source: "/potal/:path*",
+        destination: "/portal/:path*",
+        permanent: false,
+      },
+      {
+        source: "/portal/signin",
+        destination: "/portal/login",
+        permanent: false,
+      },
+      {
+        source: "/portal/sign-in",
+        destination: "/portal/login",
+        permanent: false,
+      },
+      {
+        source: "/admin/login",
+        destination: "/portal/login",
+        permanent: false,
+      },
+      {
+        source: "/worker/login",
+        destination: "/portal/login",
+        permanent: false,
+      },
+      {
+        source: "/staff",
+        destination: "/portal/login",
+        permanent: false,
+      },
+      {
+        source: "/staff/login",
         destination: "/portal/login",
         permanent: false,
       },

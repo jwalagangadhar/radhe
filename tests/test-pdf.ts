@@ -1,4 +1,4 @@
-import { generateInvoicePdf, CompanyInfo, InvoicePdfData } from "./src/lib/pdf";
+import { generateInvoicePdf, CompanyInfo, InvoicePdfData } from "@/lib/pdf";
 
 async function main() {
   const company: CompanyInfo = {
