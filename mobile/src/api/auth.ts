@@ -62,3 +62,72 @@ export async function logoutApi(): Promise<void> {
     await removeSessionUser();
   }
 }
+
+export interface SendOtpResponse {
+  success: boolean;
+  message?: string;
+  cooldownSeconds?: number;
+  expiresInSeconds?: number;
+  isSimulated?: boolean;
+  simulatedOtp?: string;
+  error?: string;
+}
+
+export interface VerifyOtpResponse {
+  success: boolean;
+  token?: string;
+  message?: string;
+  isFirstLogin?: boolean;
+  user?: {
+    id: string;
+    name?: string | null;
+    phone: string;
+    email?: string | null;
+    phoneVerified?: boolean;
+  };
+  error?: string;
+}
+
+/**
+ * Sends a 6-digit OTP to customer mobile number.
+ */
+export async function sendCustomerOtpApi(phone: string, countryCode = "+91"): Promise<SendOtpResponse> {
+  return await apiClient<SendOtpResponse>("/api/customer/auth/send-otp", {
+    method: "POST",
+    skipAuth: true,
+    body: JSON.stringify({ phone, countryCode, purpose: "LOGIN" }),
+  });
+}
+
+/**
+ * Verifies 6-digit OTP and authenticates customer on mobile device.
+ */
+export async function verifyCustomerOtpApi(
+  phone: string,
+  otp: string,
+  countryCode = "+91",
+  name?: string
+): Promise<VerifyOtpResponse> {
+  const result = await apiClient<VerifyOtpResponse>("/api/customer/auth/verify-otp", {
+    method: "POST",
+    skipAuth: true,
+    body: JSON.stringify({ phone, otp, countryCode, name }),
+  });
+
+  if (result.token) {
+    await saveAuthToken(result.token);
+  }
+  if (result.user) {
+    const sessionUser: SessionUser = {
+      id: result.user.id,
+      username: result.user.phone,
+      email: result.user.email || null,
+      name: result.user.name || "Customer",
+      role: "CUSTOMER" as any,
+    };
+    await saveSessionUser(JSON.stringify(sessionUser));
+  }
+
+  return result;
+}
+

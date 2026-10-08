@@ -56,7 +56,7 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     const token = await getAuthToken();
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
-      headers.set("Cookie", `radhe_session=${token}`);
+      headers.set("Cookie", `radhe_session=${token}; radhe_customer_session=${token}`);
     }
   }
 

@@ -41,6 +41,7 @@ export default function CustomerCatalogScreen() {
         category: category !== "All" ? category : undefined,
         search: search.trim() || undefined,
         active: true,
+        orderType: "WEB",
       });
       setProducts(data);
     } catch (err) {
@@ -78,8 +79,13 @@ export default function CustomerCatalogScreen() {
     return (
       <View style={styles.productCard}>
         <View style={styles.cardHeader}>
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{item.category}</Text>
+          <View style={styles.badgeRow}>
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>{item.category}</Text>
+            </View>
+            <View style={styles.gstBadge}>
+              <Text style={styles.gstText}>GST {item.gstRate || 5}%</Text>
+            </View>
           </View>
           <View
             style={[
@@ -111,7 +117,10 @@ export default function CustomerCatalogScreen() {
         <View style={styles.specRow}>
           <View style={styles.specBadge}>
             <MaterialCommunityIcons name="weight" size={14} color="#78350f" />
-            <Text style={styles.specText}>{bagWeight}kg Sealed Bag</Text>
+            <Text style={styles.specText}>{bagWeight}kg Bag</Text>
+          </View>
+          <View style={styles.hsnBadge}>
+            <Text style={styles.hsnText}>HSN: {item.hsnCode || "1006"}</Text>
           </View>
           <Text style={styles.perKgText}>₹{effectivePerKg}/kg</Text>
         </View>
@@ -354,11 +363,42 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
   },
+  badgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   categoryText: {
     fontSize: 10,
     fontWeight: "700",
     color: "#64748b",
     textTransform: "uppercase",
+  },
+  gstBadge: {
+    backgroundColor: "#ecfdf5",
+    borderWidth: 1,
+    borderColor: "#a7f3d0",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  gstText: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: "#047857",
+  },
+  hsnBadge: {
+    backgroundColor: "#f1f5f9",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  hsnText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#475569",
   },
   stockBadge: {
     flexDirection: "row",

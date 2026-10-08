@@ -63,6 +63,13 @@ export interface CustomerCheckoutPayload {
   shopName: string;
   shopPhone: string;
   shopAddress: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  gstNumber?: string;
+  customerStateCode?: string;
+  placeOfSupply?: string;
+  transporterName?: string;
   items: CustomerCheckoutItem[];
 }
 
@@ -77,7 +84,7 @@ export async function createCustomerCheckout(payload: CustomerCheckoutPayload): 
   return apiClient<CheckoutResponse>("/api/checkout", {
     method: "POST",
     body: JSON.stringify(payload),
-    skipAuth: true,
+    skipAuth: false,
   });
 }
 

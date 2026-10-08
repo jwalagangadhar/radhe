@@ -1,4 +1,4 @@
-export type Role = "ADMIN" | "WORKER";
+export type Role = "ADMIN" | "WORKER" | "CUSTOMER";
 
 export type OrderType = "WEB" | "WALK_IN";
 
@@ -19,6 +19,7 @@ export interface SessionUser {
   email?: string | null;
   name: string;
   role: Role;
+  phone?: string | null;
 }
 
 export interface Customer {

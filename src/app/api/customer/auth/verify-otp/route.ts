@@ -103,6 +103,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      token,
       message: isFirstLogin ? "Welcome! Account created successfully." : "Welcome back! Login successful.",
       isFirstLogin,
       user: {

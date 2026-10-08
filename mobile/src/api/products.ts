@@ -6,6 +6,7 @@ export interface GetProductsParams {
   search?: string;
   barcode?: string;
   active?: boolean;
+  orderType?: "WEB" | "WALK_IN" | "WALK_IN_GST" | "WALK_IN_NONGST";
 }
 
 export async function fetchProducts(params: GetProductsParams = {}): Promise<Product[]> {
@@ -14,6 +15,7 @@ export async function fetchProducts(params: GetProductsParams = {}): Promise<Pro
   if (params.search) query.set("search", params.search);
   if (params.barcode) query.set("barcode", params.barcode);
   if (params.active !== undefined) query.set("active", String(params.active));
+  if (params.orderType) query.set("orderType", params.orderType);
 
   const qs = query.toString();
   const endpoint = `/api/products${qs ? `?${qs}` : ""}`;
