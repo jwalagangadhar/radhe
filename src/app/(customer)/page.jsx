@@ -34,7 +34,15 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <Image src="/logo.png" alt="Rajyalakshmi Radhe logo" width={320} height={200} style={{ width: "auto", height: "auto" }} className="animate-float glass-card rounded-3xl bg-white/95 p-4 sm:p-6 shadow-2xl max-w-[200px] sm:max-w-xs object-contain" priority/>
+            <div className="animate-float relative group">
+              {/* Soft ambient aura blending the card with the royal blue hero */}
+              <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-amber-400/40 via-blue-400/30 to-amber-300/40 opacity-75 blur-xl group-hover:opacity-100 transition duration-500" />
+              
+              {/* Crisp seamless card with 100% uniform surface */}
+              <div className="relative flex items-center justify-center rounded-3xl bg-white p-6 sm:p-8 shadow-2xl ring-1 ring-white/60 max-w-[240px] sm:max-w-xs transition-transform duration-300 hover:scale-[1.02]">
+                <Image src="/logo.png" alt="Rajyalakshmi Radhe logo" width={280} height={160} className="w-full h-auto object-contain" priority unoptimized/>
+              </div>
+            </div>
           </div>
         </div>
       </section>
