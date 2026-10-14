@@ -133,6 +133,7 @@ model Product {
   @@index([category])
   @@index([availability])
   @@index([active, availability])
+  @@index([parentId])
 }
 
 model Order {
@@ -178,6 +179,7 @@ model Order {
 
   @@index([userId])
   @@index([status])
+  @@index([type])
   @@index([createdAt])
 }
 
@@ -198,6 +200,9 @@ model OrderItem {
   sgstAmount  Float   @default(0)
   igstAmount  Float   @default(0)
   subtotal    Float
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model Invoice {
