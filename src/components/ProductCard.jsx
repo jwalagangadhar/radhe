@@ -19,7 +19,7 @@ export function ProductCard({ product }) {
         : product.stock <= 10
             ? { text: `Limited Stock (${product.stock} Bags)`, color: "text-amber-500" }
             : { text: `In Stock (${product.stock} Bags available)`, color: "text-emerald-600" };
-    return (<article className="flex flex-col overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-xs transition hover:shadow-md">
+    return (<article className="glass-card card-lift flex flex-col overflow-hidden rounded-2xl">
       <div className="flex h-36 sm:h-40 w-full items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 text-5xl relative overflow-hidden">
         {product.image ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -103,7 +103,7 @@ export function ProductCard({ product }) {
                 image: product.image,
                 variantId: `${bagWeight}kg_bag`,
                 variantLabel: `1 Bag (${bagWeight}kg)`,
-            })} aria-label={`Add 1 bag of ${product.name} to cart`} className="rounded-2xl bg-orange-600 hover:bg-orange-700 px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-black text-white shadow-xs transition active:scale-95 disabled:cursor-not-allowed disabled:bg-zinc-300 min-h-[40px] sm:min-h-[44px] flex items-center justify-center cursor-pointer">
+            })} aria-label={`Add 1 bag of ${product.name} to cart`} className="btn-gold rounded-2xl px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-black shadow-sm disabled:cursor-not-allowed disabled:opacity-40 min-h-[40px] sm:min-h-[44px] flex items-center justify-center cursor-pointer">
               {outOfStock ? "Unavailable" : "+ Add Bag"}
             </button>)}
         </div>

@@ -40,7 +40,7 @@ export function CustomerNav() {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
-    return (<header className="sticky top-0 z-40 border-b border-amber-100 bg-white/95 backdrop-blur-md shadow-xs">
+    return (<header className="glass-header sticky top-0 z-40">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:py-3">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="Radhe Wholesale - Home">

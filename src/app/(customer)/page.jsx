@@ -25,16 +25,16 @@ export default async function HomePage() {
               packed, and priced fairly — just like home.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
-              <Link href="/products" className="w-full sm:w-auto rounded-full bg-amber-400 px-6 py-3 font-bold text-zinc-900 hover:bg-amber-300 text-center shadow-md active:scale-95 transition-all min-h-[44px] flex items-center justify-center">
+              <Link href="/products" className="btn-gold w-full sm:w-auto rounded-full px-6 py-3 font-bold text-center active:scale-95 transition-all min-h-[44px] flex items-center justify-center">
                 Shop Wholesale Bags
               </Link>
-              <Link href="/about" className="w-full sm:w-auto rounded-full border border-white/50 px-6 py-3 font-semibold text-white hover:bg-white/10 text-center active:scale-95 transition-all min-h-[44px] flex items-center justify-center">
+              <Link href="/about" className="btn-navy w-full sm:w-auto rounded-full border border-white/20 px-6 py-3 font-semibold text-white hover:bg-white/10 text-center active:scale-95 transition-all min-h-[44px] flex items-center justify-center">
                 Our Family Story
               </Link>
             </div>
           </div>
           <div className="flex justify-center">
-            <Image src="/logo.png" alt="Rajyalakshmi Radhe logo" width={320} height={200} style={{ width: "auto", height: "auto" }} className="rounded-3xl bg-white/95 p-4 sm:p-6 shadow-2xl max-w-[200px] sm:max-w-xs object-contain" priority/>
+            <Image src="/logo.png" alt="Rajyalakshmi Radhe logo" width={320} height={200} style={{ width: "auto", height: "auto" }} className="animate-float glass-card rounded-3xl bg-white/95 p-4 sm:p-6 shadow-2xl max-w-[200px] sm:max-w-xs object-contain" priority/>
           </div>
         </div>
       </section>
