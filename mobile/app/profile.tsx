@@ -13,7 +13,6 @@ import { useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "../src/hooks/useAuth";
 import { HeaderBar } from "../src/components/HeaderBar";
-import { API_BASE_URL } from "../src/api/client";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -107,27 +106,6 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Security & System Info */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Security & Infrastructure</Text>
-
-          <View style={styles.rowItem}>
-            <Text style={styles.rowLabel}>Credential Vault</Text>
-            <Text style={styles.rowValueHighlight}>Expo SecureStore (Hardware Keystore)</Text>
-          </View>
-
-          <View style={styles.rowItem}>
-            <Text style={styles.rowLabel}>Backend API</Text>
-            <Text style={styles.rowValueSmall} numberOfLines={1}>
-              {API_BASE_URL}
-            </Text>
-          </View>
-
-          <View style={styles.rowItem}>
-            <Text style={styles.rowLabel}>Session Validation</Text>
-            <Text style={styles.rowValue}>Server-Side Next.js JWT</Text>
-          </View>
-        </View>
 
         {/* Sign Out Button */}
         <TouchableOpacity
@@ -246,17 +224,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#0f172a",
-  },
-  rowValueHighlight: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#16a34a",
-  },
-  rowValueSmall: {
-    fontSize: 12,
-    fontWeight: "500",
-    color: "#64748b",
-    maxWidth: 180,
   },
   logoutButton: {
     flexDirection: "row",

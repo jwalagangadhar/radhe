@@ -40,16 +40,21 @@ export function CustomerNav() {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
+    // Hide Home and About from navigation once customer logs in
+    const visibleLinks = user
+        ? NAV_LINKS.filter((link) => link.href !== "/" && link.href !== "/about")
+        : NAV_LINKS;
+
     return (<header className="glass-header sticky top-0 z-40">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:py-3">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="Radhe Wholesale - Home">
+        <Link href={user ? "/products" : "/"} className="flex items-center gap-2 shrink-0" aria-label="Radhe Wholesale - Home">
           <Image src="/logo.png" alt="Rajyalakshmi Radhe" width={120} height={75} className="h-10 w-auto object-contain sm:h-12 md:h-14" priority/>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-5 lg:gap-6" aria-label="Desktop navigation">
-          {NAV_LINKS.map((link) => {
+          {visibleLinks.map((link) => {
             const isActive = pathname === link.href;
             return (<Link key={link.href} href={link.href} className={`text-sm font-semibold transition-colors ${isActive ? "text-amber-700 font-bold" : "text-zinc-700 hover:text-amber-600"}`}>
                 {link.label}
@@ -81,10 +86,12 @@ export function CustomerNav() {
               <span>Login / Sign Up</span>
             </button>)}
 
-          {/* Desktop Staff Portal Link */}
-          <Link href="/portal/login" className="text-xs font-semibold text-zinc-400 hover:text-amber-700 transition-colors border-l border-zinc-200 pl-4 py-1">
-            Staff Portal →
-          </Link>
+          {/* Desktop Staff Portal Link (Hidden when customer is logged in) */}
+          {!user && (
+            <Link href="/portal/login" className="text-xs font-semibold text-zinc-400 hover:text-amber-700 transition-colors border-l border-zinc-200 pl-4 py-1">
+              Staff Portal →
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Action Controls (Login / User + Cart + Hamburger) */}
@@ -164,7 +171,7 @@ export function CustomerNav() {
 
             {/* Navigation Links */}
             <nav className="flex-1 overflow-y-auto p-4 space-y-1.5" aria-label="Mobile menu">
-              {NAV_LINKS.map((link) => {
+              {visibleLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (<Link key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3.5 rounded-2xl px-4 py-3 text-base font-bold transition-all min-h-[48px] ${isActive
                         ? "bg-amber-500 text-zinc-950 shadow-sm"
@@ -207,12 +214,14 @@ export function CustomerNav() {
                 </Link>)}
             </nav>
 
-            {/* Drawer Footer with Quick Info & Staff Portal Link */}
+            {/* Drawer Footer with Quick Info & Staff Portal Link (Hidden when customer is logged in) */}
             <div className="border-t border-zinc-200 bg-zinc-50 p-4 space-y-3">
-              <Link href="/portal/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-3 text-sm font-bold text-amber-400 hover:bg-zinc-800 active:scale-95 transition min-h-[44px]">
-                <span>🔐</span>
-                <span>Staff &amp; Admin Portal</span>
-              </Link>
+              {!user && (
+                <Link href="/portal/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-3 text-sm font-bold text-amber-400 hover:bg-zinc-800 active:scale-95 transition min-h-[44px]">
+                  <span>🔐</span>
+                  <span>Staff &amp; Admin Portal</span>
+                </Link>
+              )}
               <div className="text-center text-xs text-zinc-500">
                 <p className="font-semibold text-zinc-700">Gollapudi Wholesale Market</p>
                 <p>Vijayawada · +91 99999 00000</p>

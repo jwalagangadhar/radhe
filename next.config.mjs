@@ -1,13 +1,19 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === "production";
+
 const securityHeaders = [
   {
     key: "X-DNS-Prefetch-Control",
     value: "on",
   },
-  {
-    key: "Strict-Transport-Security",
-    value: "max-age=63072000; includeSubDomains; preload",
-  },
+  ...(isProd
+    ? [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains; preload",
+        },
+      ]
+    : []),
   {
     key: "X-Frame-Options",
     value: "SAMEORIGIN",
@@ -26,7 +32,7 @@ const securityHeaders = [
   },
   {
     key: "Content-Security-Policy",
-    value: "upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: http: ws: wss:; frame-ancestors 'self';",
+    value: `${isProd ? "upgrade-insecure-requests; " : ""}default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: http: ws: wss:; frame-ancestors 'self';`,
   },
 ];
 
@@ -51,7 +57,7 @@ const nextConfig = {
     turbopackFileSystemCacheForBuild: true,
     serverComponentsHmrCache: true,
   },
-  allowedDevOrigins: ["192.168.29.246", "wicked-frogs-kneel.loca.lt", "localhost"],
+  allowedDevOrigins: ["common-bees-sink.loca.lt", "192.168.1.40", "192.168.29.246", "wicked-frogs-kneel.loca.lt", "localhost", "127.0.0.1"],
   async headers() {
     return [
       {

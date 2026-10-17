@@ -334,34 +334,6 @@ export default function LoginScreen() {
                 <Text style={styles.formTitle}>Staff Sign In</Text>
                 <Text style={styles.formSubtitle}>Access with your Admin or Worker credentials</Text>
 
-                {/* Quick Staff Credentials */}
-                <View style={styles.quickChipsBox}>
-                  <Text style={styles.quickChipsTitle}>⚡ 1-Click Demo Login</Text>
-                  <View style={styles.quickChipsRow}>
-                    <TouchableOpacity
-                      style={styles.quickChip}
-                      onPress={() => {
-                        setIdentifier("admin");
-                        setPassword("admin123");
-                        setErrorMessage(null);
-                      }}
-                    >
-                      <Text style={styles.quickChipRole}>👑 Admin</Text>
-                      <Text style={styles.quickChipCreds}>admin / admin123</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.quickChip}
-                      onPress={() => {
-                        setIdentifier("worker");
-                        setPassword("worker123");
-                        setErrorMessage(null);
-                      }}
-                    >
-                      <Text style={styles.quickChipRole}>📦 Worker</Text>
-                      <Text style={styles.quickChipCreds}>worker / worker123</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Username or Email</Text>
@@ -760,44 +732,5 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     textDecorationLine: "underline",
   },
-  quickChipsBox: {
-    backgroundColor: "#f8fafc",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-  },
-  quickChipsTitle: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#64748b",
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  quickChipsRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  quickChip: {
-    flex: 1,
-    backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    alignItems: "center",
-  },
-  quickChipRole: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#1e293b",
-  },
-  quickChipCreds: {
-    fontSize: 10,
-    color: "#64748b",
-    marginTop: 2,
-  },
+
 });

@@ -44,4 +44,5 @@ next-env.d.ts
 
 # scratchpads & playgrounds
 *.mongodb.js
+.e2ee-keys.json
 

@@ -73,13 +73,29 @@ function PortalLoginContent() {
                 password,
             });
 
-            const res = await fetch("/api/auth/login", {
+            let res = await fetch("/api/auth/login", {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(securePayload),
             });
-            const data = await res.json();
+            let data = await res.json();
+
+            // If decryption failed (e.g. server restarted or key rotated), retry once with fresh key
+            if (!res.ok && data.error && (data.error.includes("decryption") || data.error.includes("expired"))) {
+                const retryPayload = await encryptLoginCredentials({
+                    identifier: identifier.trim(),
+                    password,
+                }, true); // forceRefreshKey = true
+                res = await fetch("/api/auth/login", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(retryPayload),
+                });
+                data = await res.json();
+            }
+
             if (!res.ok) {
                 setError(data.error || "Invalid email/username or password.");
                 return;
